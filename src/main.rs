@@ -7,6 +7,7 @@ use crossterm::event::DisableMouseCapture;
 use crossterm::execute;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::CrosstermBackend;
+use ratatui::layout::Rect;
 use ratatui::Terminal;
 use crate::game::run;
 
@@ -20,6 +21,7 @@ fn setup() -> io::Result<Terminal<CrosstermBackend<Stdout>>> {
 
 fn main() -> io::Result<()> {
     let mut term = setup()?;
+    term.resize(Rect::new(10, 10, 1, 1)).unwrap();
     enable_raw_mode()?;
 
     run(&mut term)?;
