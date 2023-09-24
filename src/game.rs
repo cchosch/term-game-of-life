@@ -12,6 +12,9 @@ use std::sync::Arc;
 use std::time::{Duration, SystemTime};
 use std::{io, thread};
 
+/// ms
+const FRAME_DELAY: u64 = 10;
+
 pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Error> {
     let input_ch = start_input();
     let alive = Block::default().bg(Color::White);
@@ -30,7 +33,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
             .bg(Color::default())
             .title("Stats");
         term.draw(|f| {
-            let before_render = SystemTime::now();
+            let render_time = SystemTime::now();
             for x in 0..board.get_width() {
                 for y in 0..board.get_height() {
                     match board.get(x.clone(), y.clone()) {
@@ -44,7 +47,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
                     }
                 }
             }
-            let render_time = before_render.elapsed().unwrap();
+            let render_time = render_time.elapsed().unwrap();
             let elapsed_txt = Text::raw(format!(
                 "Update time: {}ms\nRender time: {}ms\nTotal time elapsed: {}ms",
                 update_time.as_millis(),
@@ -62,7 +65,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
                 ),
             );
         })?;
-        thread::sleep(Duration::from_millis(500));
+        thread::sleep(Duration::from_millis(FRAME_DELAY));
     }
     Ok(())
 }
