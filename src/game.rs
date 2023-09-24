@@ -16,7 +16,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
     let input_ch = start_input();
     let alive = Block::default().bg(Color::White);
     let (width, height) = size()?;
-    let mut board: Board = Board::new(width as usize, height as usize);
+    let mut board: Board = Board::new(width as usize / 2, height as usize);
     loop {
         let recent = input_ch.try_recv().unwrap_or(Arc::new([]));
         if recent.contains(&3) {
@@ -27,7 +27,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
         let update_time = before_board_update.elapsed().unwrap();
         let stats = Block::default()
             .borders(Borders::ALL)
-            .bg(Color::Black)
+            .bg(Color::default())
             .title("Stats");
         term.draw(|f| {
             let before_render = SystemTime::now();
@@ -37,7 +37,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
                         Some(BoardState::Alive) => {
                             f.render_widget(
                                 alive.clone(),
-                                Rect::new(x.clone() as u16, y.clone() as u16, 1, 1),
+                                Rect::new(x.clone() as u16 * 2, y.clone() as u16, 2, 1),
                             );
                         }
                         _ => {}
