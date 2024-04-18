@@ -6,8 +6,8 @@ Mutli-threaded
 implemented in rust as a cli program
 
 ### Running
-The size of your terminal on start determines how large the board is, so I reccomend making
+The size of your terminal on start determines how large the board is, so I recommend making
 the text in your terminal very small before running it.
 
-Like any other rust program, start it by running `cargo run`
+Like any other rust program, start it by simply running `cargo run`
 
