@@ -1,6 +1,7 @@
 pub mod board;
 mod game;
 
+use crate::board::BoardSegment;
 use crate::game::run;
 use crossterm::event::DisableMouseCapture;
 use crossterm::execute;
@@ -21,8 +22,9 @@ fn setup() -> io::Result<Terminal<CrosstermBackend<Stdout>>> {
 }
 
 fn main() -> io::Result<()> {
+    BoardSegment::random(0, 0);
     let mut term = setup()?;
-    term.resize(Rect::new(10, 10, 1, 1)).unwrap();
+    // term.resize(Rect::new(10, 10, 1, 1)).unwrap();
     enable_raw_mode()?;
 
     run(&mut term)?;

@@ -1,4 +1,4 @@
-use crate::board::{Board, BoardState};
+use crate::board::{Board, BoardSegment, BoardState};
 use crossterm::terminal::size;
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::Rect;
@@ -12,19 +12,20 @@ use std::sync::Arc;
 use std::time::{Duration, SystemTime};
 use std::{io, thread};
 
-/// ms
-const FRAME_DELAY: u64 = 10;
+const FRAME_DELAY: Duration = Duration::from_millis(50);
 
 pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Error> {
     let input_ch = start_input();
     let alive = Block::default().bg(Color::White);
     let (width, height) = size()?;
     let mut board: Board = Board::new(width as usize / 2, height as usize);
+    let mut label = String::from("Press ESC to exit");
     loop {
         let recent = input_ch.try_recv().unwrap_or(Arc::new([]));
-        if recent.contains(&3) {
+        if recent.contains(&27) {
             break;
         }
+
         let before_board_update = SystemTime::now();
         board.update();
         let update_time = before_board_update.elapsed().unwrap();
@@ -34,8 +35,9 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
             .title("Stats");
         term.draw(|f| {
             let render_time = SystemTime::now();
-            for x in 0..board.get_width() {
-                for y in 0..board.get_height() {
+            let (width, height) = board.get_dimensions();
+            for x in 0..width {
+                for y in 0..height {
                     match board.get(x.clone(), y.clone()) {
                         Some(BoardState::Alive) => {
                             f.render_widget(
@@ -49,7 +51,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
             }
             let render_time = render_time.elapsed().unwrap();
             let elapsed_txt = Text::raw(format!(
-                "Update time: {}ms\nRender time: {}ms\nTotal time elapsed: {}ms",
+                "Update time: {}ms\nRender time: {}ms\nTotal time elapsed: {}ms\n{label}",
                 update_time.as_millis(),
                 render_time.as_millis(),
                 before_board_update.elapsed().unwrap().as_millis()
@@ -65,7 +67,7 @@ pub fn run(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<(), io::Erro
                 ),
             );
         })?;
-        thread::sleep(Duration::from_millis(FRAME_DELAY));
+        thread::sleep(FRAME_DELAY);
     }
     Ok(())
 }
